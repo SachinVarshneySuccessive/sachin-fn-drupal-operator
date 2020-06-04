@@ -204,7 +204,7 @@ func (rh *requestHandler) reconcileDatabase() (requeue bool, err error) {
 
 		pwd, err := rh.database.GetPassword(r.client)
 		if pwd == "" {
-			rh.logger.Error(err, "User secret password is not provided")
+			rh.logger.Error(err, "secret password is not provided")
 			return false, err
 		}
 
