@@ -1,0 +1,84 @@
+version: ~> 1.0
+language: go
+
+branches:
+  except:
+    # Avoid double testing stories which are tested as PRs.
+    - /^[a-zA-Z]+-\d+/
+
+import:
+  - source: acquia/fn-go-utils:pkg/release/travis-release-stage.yml@v1.1.0
+
+stages:
+  - test
+  - release
+
+go:
+  - '1.14.x'
+
+dist: bionic
+
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $GOPATH/pkg/mod
+
+git:
+  depth: 3
+  quiet: true
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: test
+      addons:
+        snaps:
+          - name: microk8s
+            confinement: classic
+            channel: 1.13/stable
+          - name: helm
+            confinement: classic
+            channel: 3.2/stable
+          - name: aws-cli
+            confinement: classic
+
+      env:
+        - AWS_DEFAULT_REGION=us-east-1
+        - AWS_ACCESS_KEY_ID=AKIA42LFMR2EM22HYYGV
+        - secure: o3Jr5B31lQKuqPwE1PWYijQa0Yg2zJTBEQSZwfaa9IflNZJcmZhFWYuatzVdwjfVgMlu735tqVYQk5Q7xGarKs4RXiyAzQrh4xkzzA61bNBBSCNUhxHGrqCRShzZLV40L5+qniRyaxVR+pFPOurNGZuHKp/Wlvy84RsFE4O9rdeQ5EtKFUbx9YRbterTdvcj7wzFeOE5v5WO5ohtPH9KK5mIbKYa/wj3BOWqMvhnZFfxXMZ17T8KJJpl4F/3ElJ0sM9LpI6vjM45rugTIZJ1B5++J9VfS1qQnPpQzvOpb0sYpjHinbCPNa0BLCXTTmMg3A7yimVZ96CfoO5A666f4yz8GxzNP7i5ezwk30xz+iuyOAH0zOZUzn2Qs8/5EuKnmZmP+fLN2wjQJjHn9X4aUB6tjw0fHBONdQVGcZfyDX/t6hWO8LcT79MgM0AB1cbHK/gdY8XtYEFHWeODdjIXqz61GEgDr5f4BkwI2IB8q4XsnHOfaOfljXS9yXIf/DxJes+sITh7SByy2JziTlHF/oEjGk4UKSPQmZeVKAAN6ZVGwpZqcOFEADSadgv0Ugnnhg9aBTd45BaGcYsPiZleDd7SmpdVB8BKifeaiTV9d8pzNAESkwcY3G9ZpUSQq5mr4eiEK5l64rlMl2lg1ukBf9JJWy8XWAbWwNISrUbjcxo=
+
+      before_install:
+        - git config --global url."git@github.com:".insteadOf "https://github.com/"
+        - export PATH=$PATH:$HOME/.local/bin
+        - pyenv global 3.7
+        - ./travis-ci/install-operator-sdk.sh
+
+      install:
+        # Installation of all the python dependencies
+        - pip3 install -r requirements.txt
+
+      before_script:
+        # Login to docker to push and pull the images
+        - eval $(aws ecr get-login --region us-east-1 --no-include-email)
+        - microk8s.stop
+        - sudo ln -s ~/.docker/config.json /var/snap/microk8s/common/var/lib/kubelet/
+        - sudo snap alias microk8s.kubectl kubectl
+        - microk8s.start
+        - microk8s.status --wait-ready
+        - microk8s.inspect
+        - microk8s.config > ~/.kube/config
+        - microk8s.enable dns storage
+
+      script:
+        - make lint
+        - make test
+
+      after_success:
+        - echo "Sending coverage report to coveralls.io"
+        - go get github.com/mattn/goveralls
+        - goveralls -coverprofile=coverage.out -repotoken=$COVERALLS_TOKEN -service=travis-pro
+
+      after_failure:
+        - microk8s.inspect

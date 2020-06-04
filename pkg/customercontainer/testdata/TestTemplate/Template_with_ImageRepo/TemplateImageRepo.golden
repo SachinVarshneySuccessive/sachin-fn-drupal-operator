@@ -1,0 +1,94 @@
+{
+	"name": "",
+	"image": "881217801864.dkr.ecr.us-east-1.amazonaws.com/customer/gitlab.fn.acquia.io/wlgore-app/poc-gore:1.0.0",
+	"env": [
+		{
+			"name": "CUSTOM_ENV1",
+			"value": "testValue1"
+		},
+		{
+			"name": "CUSTOM_ENV2",
+			"value": "testValue2"
+		},
+		{
+			"name": "AH_PRODUCTION",
+			"value": "1"
+		},
+		{
+			"name": "AH_APPLICATION_UUID",
+			"value": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704"
+		},
+		{
+			"name": "AH_CURRENT_REGION",
+			"value": "TestRegion"
+		},
+		{
+			"name": "AH_REALM",
+			"value": "TestRealm"
+		},
+		{
+			"name": "AH_SITE_ENVIRONMENT",
+			"value": "prod"
+		},
+		{
+			"name": "AH_SITE_GROUP",
+			"value": "wlgore-app"
+		},
+		{
+			"name": "TEMP",
+			"value": "/shared/tmp"
+		},
+		{
+			"name": "TMPDIR",
+			"value": "/shared/tmp"
+		}
+	],
+	"resources": {
+		"limits": {
+			"cpu": "500m",
+			"memory": "512Mi"
+		},
+		"requests": {
+			"cpu": "200m",
+			"memory": "375Mi"
+		}
+	},
+	"volumeMounts": [
+		{
+			"name": "shared-files",
+			"mountPath": "/var/www/html/docroot/sites/default/files",
+			"subPath": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-drupal-files"
+		},
+		{
+			"name": "shared-files",
+			"mountPath": "/shared",
+			"subPath": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-shared"
+		},
+		{
+			"name": "php-config",
+			"readOnly": true,
+			"mountPath": "/usr/local/php/etc/conf.d/zzz_drupalenvironment.ini",
+			"subPath": "zzz_drupalenvironment.ini"
+		},
+		{
+			"name": "php-config",
+			"readOnly": true,
+			"mountPath": "/usr/local/php/etc/cli/conf.d/zzz_drupalenvironment_cli.ini",
+			"subPath": "zzz_drupalenvironment_cli.ini"
+		},
+		{
+			"name": "php-config",
+			"readOnly": true,
+			"mountPath": "/usr/local/php/etc/conf.d/newrelic.ini",
+			"subPath": "newrelic.ini"
+		},
+		{
+			"name": "env-config",
+			"readOnly": true,
+			"mountPath": "/mnt/env-config/"
+		}
+	],
+	"terminationMessagePath": "/dev/termination-log",
+	"terminationMessagePolicy": "File",
+	"imagePullPolicy": "Always"
+}

@@ -1,0 +1,17 @@
+image:
+  repository: 881217801864.dkr.ecr.us-east-1.amazonaws.com/fn-drupal-operator
+  tag: latest
+  pullPolicy: Always
+
+istio:
+  enabled: false
+
+realm: ""
+
+customerECR: 881217801864.dkr.ecr.us-east-1.amazonaws.com
+customerECRRepoNamePrefix: customer
+
+watchNamespace: ""
+useDynamicProvisioning: ""
+defaultStorageClass: "efs"
+newrelicDaemonAddr: newrelic.acquia-polaris-system.svc.cluster.local:9999

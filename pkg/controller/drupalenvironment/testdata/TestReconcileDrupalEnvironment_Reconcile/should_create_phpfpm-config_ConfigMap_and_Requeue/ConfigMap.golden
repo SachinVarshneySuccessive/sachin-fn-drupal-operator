@@ -1,0 +1,27 @@
+{
+	"kind": "ConfigMap",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "phpfpm-config",
+		"namespace": "wlgore-app-prod",
+		"resourceVersion": "1",
+		"creationTimestamp": null,
+		"labels": {
+			"fnresources.acquia.io/application-id": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704",
+			"fnresources.acquia.io/environment-id": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "fnresources.acquia.io/v1alpha1",
+				"kind": "DrupalEnvironment",
+				"name": "wlgore-app-prod",
+				"uid": "",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		]
+	},
+	"data": {
+		"drupalenvironment.conf": "[www]\npm.max_children = 4\n[global]\nlog_limit = 8192\n"
+	}
+}

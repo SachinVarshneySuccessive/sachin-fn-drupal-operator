@@ -1,0 +1,24 @@
+<?php
+
+$settings['file_private_path'] = '/shared/private-files';
+
+if (empty($settings['hash_salt'])) {
+  $settings['hash_salt'] = 'fake garbage';
+}
+
+$databases['default']['default'] = [
+  'database' => 'second-database',
+  'username' => 'second-database-user',
+  'password' => '2ndpassword',
+  'host' => 'mysql-second',
+  'port' => '33306',
+  'driver' => 'mysql',
+  'prefix' => '',
+];
+
+$settings['trusted_host_patterns'] = [
+  '^localhost$',
+  '^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$',
+  '^second-site1\.com$',
+  '^second-site2\.com$',
+];

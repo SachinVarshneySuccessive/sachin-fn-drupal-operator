@@ -1,0 +1,29 @@
+{
+	"kind": "ConfigMap",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "php-config",
+		"namespace": "wlgore-app-prod",
+		"resourceVersion": "2",
+		"creationTimestamp": null,
+		"labels": {
+			"fnresources.acquia.io/application-id": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704",
+			"fnresources.acquia.io/environment-id": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "fnresources.acquia.io/v1alpha1",
+				"kind": "DrupalEnvironment",
+				"name": "wlgore-app-prod",
+				"uid": "",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		]
+	},
+	"data": {
+		"newrelic.ini": "\nextension = \"newrelic.so\"\n\n[newrelic]\nnewrelic.license = \"1234567890abcdef\"\nnewrelic.logfile = \"/var/log/newrelic/php_agent.log\"\nnewrelic.appname = \"Test App\"\nnewrelic.daemon.address = \"newrelic.newrelic.svc.cluster.local:9999\"\nnewrelic.daemon.dont_launch = 3 ; Never start the New Relic daemon in this container (there's a Deployment for that)\n",
+		"zzz_drupalenvironment.ini": "\nmax_input_vars = 1000\nmax_execution_time = 30\nmemory_limit = 128M\npost_max_size = 8M\napc.shm_size = 32M\nopcache.memory_consumption = 100\nopcache.interned_strings_buffer = 8\nsession.save_path = \"/shared/php_sessions\"\n",
+		"zzz_drupalenvironment_cli.ini": "\nmax_input_vars = 1000\npost_max_size = 8M\napc.shm_size = 32M\nopcache.memory_consumption = 100\nopcache.interned_strings_buffer = 8\nsession.save_path = \"/shared/php_sessions\"\n"
+	}
+}

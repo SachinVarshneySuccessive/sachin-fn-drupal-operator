@@ -1,0 +1,13 @@
+apiVersion: fnresources.acquia.io/v1alpha1
+kind: Command
+metadata:
+  name: drush-cron
+spec:
+  targetRef:
+    apiVersion: fnresources.acquia.io/v1alpha1
+    kind: Site
+    name: default
+  command:
+    - drush
+    - cron
+  schedule: '*/5 * * * *'

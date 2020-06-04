@@ -1,0 +1,50 @@
+{
+	"kind": "Ingress",
+	"apiVersion": "extensions/v1beta1",
+	"metadata": {
+		"name": "default",
+		"namespace": "wlgore-prod",
+		"resourceVersion": "1",
+		"creationTimestamp": null,
+		"labels": {
+			"fnresources.acquia.io/application-id": "0b48e3fe-09a1-4d96-8447-6198114e5d58",
+			"fnresources.acquia.io/environment-id": "1c1f2619-4ec0-416f-bc32-09f57242082d",
+			"fnresources.acquia.io/site-id": "ae622f34-ac70-44d5-aec4-bb6d5dcd6d41"
+		},
+		"annotations": {
+			"certmanager.k8s.io/cluster-issuer": "letsencrypt-staging",
+			"kubernetes.io/ingress.class": "nginx"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "fnresources.acquia.io/v1alpha1",
+				"kind": "Site",
+				"name": "default",
+				"uid": "",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		]
+	},
+	"spec": {
+		"rules": [
+			{
+				"host": "wlgore-prod-site1.com",
+				"http": {
+					"paths": [
+						{
+							"path": "/",
+							"backend": {
+								"serviceName": "drupal",
+								"servicePort": 80
+							}
+						}
+					]
+				}
+			}
+		]
+	},
+	"status": {
+		"loadBalancer": {}
+	}
+}

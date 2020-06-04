@@ -1,0 +1,7 @@
+<?php
+
+$sites['default1.wlgore-prod.com'] = 'default';
+$sites['default2.wlgore-prod.com'] = 'default';
+$sites['second1.wlgore-prod.com'] = 'site2';
+$sites['second2.wlgore-prod.com'] = 'site2';
+

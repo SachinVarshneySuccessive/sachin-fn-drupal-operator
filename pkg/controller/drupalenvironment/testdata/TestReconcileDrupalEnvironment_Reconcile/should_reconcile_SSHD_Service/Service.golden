@@ -1,0 +1,43 @@
+{
+	"kind": "Service",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "sshd",
+		"namespace": "wlgore-app-prod",
+		"resourceVersion": "1",
+		"creationTimestamp": null,
+		"labels": {
+			"app": "sshd",
+			"fnresources.acquia.io/application-id": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704",
+			"fnresources.acquia.io/environment-id": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee",
+			"fnsshproxy.acquia.io/ssh-user": "test"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "fnresources.acquia.io/v1alpha1",
+				"kind": "DrupalEnvironment",
+				"name": "wlgore-app-prod",
+				"uid": "",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		]
+	},
+	"spec": {
+		"ports": [
+			{
+				"name": "ssh",
+				"protocol": "TCP",
+				"port": 22,
+				"targetPort": "ssh"
+			}
+		],
+		"selector": {
+			"app": "sshd",
+			"fnsshproxy.acquia.io/ssh-user": "test"
+		}
+	},
+	"status": {
+		"loadBalancer": {}
+	}
+}

@@ -1,0 +1,16 @@
+apiVersion: fnresources.acquia.io/v1alpha1
+kind: Site
+metadata:
+  name: wlgore-site
+spec:
+  environment: "wlgore-wil-prod"
+  domains:
+  - wilgore.fn.acquia.io
+  database: wlgoredatabase
+  # ingressClass: istio-system/drupal-gateway # Uncomment for istio-enabled site
+  crons:
+  - command:
+    - drush
+    - cron
+    name: drushcron
+    schedule: '*/5 * * * *'

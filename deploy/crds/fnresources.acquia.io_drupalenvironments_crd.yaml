@@ -1,0 +1,396 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: drupalenvironments.fnresources.acquia.io
+spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.numDrupal
+    description: The number of Drupal Pods in ready state
+    name: Replicas
+    type: integer
+  - JSONPath: .spec.phpfpm.tag
+    description: Tagged Version of PHP
+    name: PHP-Tag
+    type: string
+  - JSONPath: .spec.drupal.tag
+    description: The tag of Drupal Image
+    name: Drupal-Tag
+    type: string
+  - JSONPath: .spec.stage
+    description: The environment's stage name
+    name: Stage
+    type: string
+  - JSONPath: .status.status
+    description: Current status of the environment
+    name: Status
+    type: string
+  - JSONPath: .metadata.creationTimestamp
+    name: Age
+    type: date
+  - JSONPath: .spec.production
+    description: Environment is Production
+    name: Prod
+    priority: 1
+    type: boolean
+  - JSONPath: .spec.gitRef
+    description: Deployed git ref
+    name: Git-Ref
+    priority: 1
+    type: string
+  - JSONPath: .spec.apache.customImage
+    description: Custom apache image
+    name: Custom-Apache
+    priority: 1
+    type: string
+  - JSONPath: .spec.phpfpm.customImage
+    description: Custom php-fpm image
+    name: Custom-PHP
+    priority: 1
+    type: string
+  group: fnresources.acquia.io
+  names:
+    kind: DrupalEnvironment
+    listKind: DrupalEnvironmentList
+    plural: drupalenvironments
+    shortNames:
+    - drenv
+    - drenvs
+    singular: drupalenvironment
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: DrupalEnvironment is the Schema for the drupalenvironments API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: DrupalEnvironmentSpec defines the desired state of DrupalEnvironment
+          properties:
+            apache:
+              description: SpecApache represents drupalenvironment.spec.apache
+              properties:
+                cpu:
+                  description: Resources specifies container resource requests and
+                    limits
+                  properties:
+                    limit:
+                      type: string
+                    request:
+                      type: string
+                  required:
+                  - limit
+                  - request
+                  type: object
+                customImage:
+                  type: string
+                memory:
+                  description: Resources specifies container resource requests and
+                    limits
+                  properties:
+                    limit:
+                      type: string
+                    request:
+                      type: string
+                  required:
+                  - limit
+                  - request
+                  type: object
+                tag:
+                  type: string
+                webRoot:
+                  type: string
+              required:
+              - cpu
+              - memory
+              - tag
+              - webRoot
+              type: object
+            application:
+              type: string
+            customEnvironmentVariables:
+              items:
+                description: EnvVar represents an environment variable present in
+                  a Container.
+                properties:
+                  name:
+                    description: Name of the environment variable. Must be a C_IDENTIFIER.
+                    type: string
+                  value:
+                    description: 'Variable references $(VAR_NAME) are expanded using
+                      the previous defined environment variables in the container
+                      and any service environment variables. If a variable cannot
+                      be resolved, the reference in the input string will be unchanged.
+                      The $(VAR_NAME) syntax can be escaped with a double $$, ie:
+                      $$(VAR_NAME). Escaped references will never be expanded, regardless
+                      of whether the variable exists or not. Defaults to "".'
+                    type: string
+                  valueFrom:
+                    description: Source for the environment variable's value. Cannot
+                      be used if value is not empty.
+                    properties:
+                      configMapKeyRef:
+                        description: Selects a key of a ConfigMap.
+                        properties:
+                          key:
+                            description: The key to select.
+                            type: string
+                          name:
+                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                              TODO: Add other useful fields. apiVersion, kind, uid?'
+                            type: string
+                          optional:
+                            description: Specify whether the ConfigMap or its key
+                              must be defined
+                            type: boolean
+                        required:
+                        - key
+                        type: object
+                      fieldRef:
+                        description: 'Selects a field of the pod: supports metadata.name,
+                          metadata.namespace, metadata.labels, metadata.annotations,
+                          spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP.'
+                        properties:
+                          apiVersion:
+                            description: Version of the schema the FieldPath is written
+                              in terms of, defaults to "v1".
+                            type: string
+                          fieldPath:
+                            description: Path of the field to select in the specified
+                              API version.
+                            type: string
+                        required:
+                        - fieldPath
+                        type: object
+                      resourceFieldRef:
+                        description: 'Selects a resource of the container: only resources
+                          limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage,
+                          requests.cpu, requests.memory and requests.ephemeral-storage)
+                          are currently supported.'
+                        properties:
+                          containerName:
+                            description: 'Container name: required for volumes, optional
+                              for env vars'
+                            type: string
+                          divisor:
+                            description: Specifies the output format of the exposed
+                              resources, defaults to "1"
+                            type: string
+                          resource:
+                            description: 'Required: resource to select'
+                            type: string
+                        required:
+                        - resource
+                        type: object
+                      secretKeyRef:
+                        description: Selects a key of a secret in the pod's namespace
+                        properties:
+                          key:
+                            description: The key of the secret to select from.  Must
+                              be a valid secret key.
+                            type: string
+                          name:
+                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                              TODO: Add other useful fields. apiVersion, kind, uid?'
+                            type: string
+                          optional:
+                            description: Specify whether the Secret or its key must
+                              be defined
+                            type: boolean
+                        required:
+                        - key
+                        type: object
+                    type: object
+                required:
+                - name
+                type: object
+              type: array
+            drupal:
+              description: SpecDrupal represents drupalenvironment.spec.drupal
+              properties:
+                livenessProbe:
+                  description: HTTPProbe specifies a container's HTTP liveness/readiness
+                    probe
+                  properties:
+                    enabled:
+                      type: boolean
+                    failureThreshold:
+                      format: int32
+                      type: integer
+                    httpPath:
+                      type: string
+                    periodSeconds:
+                      format: int32
+                      type: integer
+                    successThreshold:
+                      format: int32
+                      type: integer
+                    timeoutSeconds:
+                      format: int32
+                      type: integer
+                  required:
+                  - enabled
+                  - failureThreshold
+                  - httpPath
+                  - periodSeconds
+                  - successThreshold
+                  - timeoutSeconds
+                  type: object
+                maxReplicas:
+                  format: int32
+                  type: integer
+                minReplicas:
+                  format: int32
+                  type: integer
+                pullPolicy:
+                  description: PullPolicy describes a policy for if/when to pull a
+                    container image
+                  type: string
+                readinessProbe:
+                  description: HTTPProbe specifies a container's HTTP liveness/readiness
+                    probe
+                  properties:
+                    enabled:
+                      type: boolean
+                    failureThreshold:
+                      format: int32
+                      type: integer
+                    httpPath:
+                      type: string
+                    periodSeconds:
+                      format: int32
+                      type: integer
+                    successThreshold:
+                      format: int32
+                      type: integer
+                    timeoutSeconds:
+                      format: int32
+                      type: integer
+                  required:
+                  - enabled
+                  - failureThreshold
+                  - httpPath
+                  - periodSeconds
+                  - successThreshold
+                  - timeoutSeconds
+                  type: object
+                tag:
+                  type: string
+                targetCPUUtilizationPercentage:
+                  format: int32
+                  type: integer
+              required:
+              - livenessProbe
+              - maxReplicas
+              - minReplicas
+              - pullPolicy
+              - readinessProbe
+              - tag
+              type: object
+            efsid:
+              type: string
+            gitRef:
+              type: string
+            phpfpm:
+              description: SpecPhpFpm represents drupalenvironment.spec.phpfpm
+              properties:
+                apcMemoryLimitMiB:
+                  format: int32
+                  type: integer
+                cpu:
+                  description: Resources specifies container resource requests and
+                    limits
+                  properties:
+                    limit:
+                      type: string
+                    request:
+                      type: string
+                  required:
+                  - limit
+                  - request
+                  type: object
+                customImage:
+                  type: string
+                maxExecutionTime:
+                  format: int32
+                  type: integer
+                maxInputVars:
+                  format: int32
+                  type: integer
+                newRelicAppName:
+                  type: string
+                newRelicSecret:
+                  type: string
+                opcacheInternedStringsBufferMiB:
+                  format: int32
+                  type: integer
+                opcacheMemoryLimitMiB:
+                  format: int32
+                  type: integer
+                postMaxSizeMiB:
+                  format: int32
+                  type: integer
+                procMemoryLimitMiB:
+                  format: int32
+                  type: integer
+                procs:
+                  format: int32
+                  type: integer
+                tag:
+                  type: string
+              required:
+              - apcMemoryLimitMiB
+              - cpu
+              - maxExecutionTime
+              - maxInputVars
+              - opcacheInternedStringsBufferMiB
+              - opcacheMemoryLimitMiB
+              - postMaxSizeMiB
+              - procMemoryLimitMiB
+              - procs
+              - tag
+              type: object
+            production:
+              type: boolean
+            stage:
+              type: string
+          required:
+          - apache
+          - application
+          - drupal
+          - efsid
+          - gitRef
+          - phpfpm
+          - production
+          - stage
+          type: object
+        status:
+          description: DrupalEnvironmentStatus defines the observed state of DrupalEnvironment
+          properties:
+            numDrupal:
+              format: int32
+              type: integer
+            status:
+              description: Describes the status of the environment.
+              type: string
+          required:
+          - numDrupal
+          - status
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true

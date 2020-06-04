@@ -1,0 +1,24 @@
+<?php
+
+$settings['file_private_path'] = '/shared/private-files';
+
+if (empty($settings['hash_salt'])) {
+  $settings['hash_salt'] = 'fake garbage';
+}
+
+$databases['default']['default'] = [
+  'database' => 'wlgore-database',
+  'username' => 'wlgore-database-user',
+  'password' => 'testpassword',
+  'host' => 'mysql',
+  'port' => '3306',
+  'driver' => 'mysql',
+  'prefix' => '',
+];
+
+$settings['trusted_host_patterns'] = [
+  '^localhost$',
+  '^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$',
+  '^wlgore-prod-site1\.com$',
+  '^wlgore-prod-site2\.com$',
+];

@@ -1,0 +1,305 @@
+{
+	"kind": "Deployment",
+	"apiVersion": "apps/v1",
+	"metadata": {
+		"name": "sshd",
+		"namespace": "wlgore-app-prod",
+		"resourceVersion": "1",
+		"creationTimestamp": null,
+		"labels": {
+			"app": "sshd",
+			"fnresources.acquia.io/application-id": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704",
+			"fnresources.acquia.io/environment-id": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee",
+			"fnsshproxy.acquia.io/ssh-user": "test"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "fnresources.acquia.io/v1alpha1",
+				"kind": "DrupalEnvironment",
+				"name": "wlgore-app-prod",
+				"uid": "",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		]
+	},
+	"spec": {
+		"replicas": 1,
+		"selector": {
+			"matchLabels": {
+				"app": "sshd",
+				"fnsshproxy.acquia.io/ssh-user": "test"
+			}
+		},
+		"template": {
+			"metadata": {
+				"creationTimestamp": null,
+				"labels": {
+					"app": "sshd",
+					"fnresources.acquia.io/application-id": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704",
+					"fnresources.acquia.io/environment-id": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee",
+					"fnsshproxy.acquia.io/ssh-user": "test"
+				},
+				"annotations": {
+					"fnresources.acquia.io/php-apache-config-hash": "1db31bb7fd22dc77a0fcf6fe4003978c399edf2e"
+				}
+			},
+			"spec": {
+				"volumes": [
+					{
+						"name": "shared-files",
+						"persistentVolumeClaim": {
+							"claimName": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-files"
+						}
+					},
+					{
+						"name": "drupal-code",
+						"emptyDir": {}
+					},
+					{
+						"name": "php-fpm-config",
+						"configMap": {
+							"name": "phpfpm-config",
+							"defaultMode": 420
+						}
+					},
+					{
+						"name": "php-config",
+						"configMap": {
+							"name": "php-config",
+							"defaultMode": 420
+						}
+					},
+					{
+						"name": "env-config",
+						"secret": {
+							"secretName": "env-config",
+							"defaultMode": 420
+						}
+					},
+					{
+						"name": "apache-conf-enabled",
+						"configMap": {
+							"name": "apache-conf-enabled",
+							"defaultMode": 420
+						}
+					}
+				],
+				"initContainers": [
+					{
+						"name": "code-copy",
+						"image": "881217801864.dkr.ecr.us-east-1.amazonaws.com/customer/gitlab.fn.acquia.io/wlgore-app/poc-gore:1.0.0",
+						"command": [
+							"rsync",
+							"--stats",
+							"--archive",
+							"/var/www/html",
+							"/drupal-code"
+						],
+						"resources": {
+							"limits": {
+								"cpu": "500m",
+								"memory": "256Mi"
+							},
+							"requests": {
+								"cpu": "100m",
+								"memory": "128Mi"
+							}
+						},
+						"volumeMounts": [
+							{
+								"name": "drupal-code",
+								"mountPath": "/drupal-code"
+							}
+						],
+						"terminationMessagePath": "/dev/termination-log",
+						"terminationMessagePolicy": "File",
+						"imagePullPolicy": "Always"
+					},
+					{
+						"name": "shared-setup",
+						"image": "881217801864.dkr.ecr.us-east-1.amazonaws.com/customer/gitlab.fn.acquia.io/wlgore-app/poc-gore:1.0.0",
+						"command": [
+							"/bin/sh",
+							"-c",
+							"mkdir -p /shared/php_sessions /shared/tmp /shared/config/sync /shared/private-files \u0026\u0026 chown clouduser:clouduser /shared/* /var/www/html/docroot/sites/default/files"
+						],
+						"resources": {
+							"limits": {
+								"cpu": "500m",
+								"memory": "256Mi"
+							},
+							"requests": {
+								"cpu": "100m",
+								"memory": "128Mi"
+							}
+						},
+						"volumeMounts": [
+							{
+								"name": "shared-files",
+								"mountPath": "/shared",
+								"subPath": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-shared"
+							},
+							{
+								"name": "shared-files",
+								"mountPath": "/var/www/html/docroot/sites/default/files",
+								"subPath": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-drupal-files"
+							}
+						],
+						"terminationMessagePath": "/dev/termination-log",
+						"terminationMessagePolicy": "File",
+						"imagePullPolicy": "Always",
+						"securityContext": {
+							"runAsUser": 0
+						}
+					}
+				],
+				"containers": [
+					{
+						"name": "sshd",
+						"image": "881217801864.dkr.ecr.us-east-1.amazonaws.com/customer/gitlab.fn.acquia.io/wlgore-app/poc-gore:1.0.0",
+						"command": [
+							"/sshd-entry.sh"
+						],
+						"args": [
+							"/usr/sbin/sshd",
+							"-D",
+							"-e",
+							"-f",
+							"/etc/ssh/sshd_config"
+						],
+						"ports": [
+							{
+								"name": "ssh",
+								"containerPort": 22,
+								"protocol": "TCP"
+							}
+						],
+						"env": [
+							{
+								"name": "CUSTOM_ENV1",
+								"value": "testValue1"
+							},
+							{
+								"name": "CUSTOM_ENV2",
+								"value": "testValue2"
+							},
+							{
+								"name": "AH_PRODUCTION",
+								"value": "1"
+							},
+							{
+								"name": "AH_APPLICATION_UUID",
+								"value": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704"
+							},
+							{
+								"name": "AH_CURRENT_REGION",
+								"value": "TestRegion"
+							},
+							{
+								"name": "AH_REALM",
+								"value": "TestRealm"
+							},
+							{
+								"name": "AH_SITE_ENVIRONMENT",
+								"value": "prod"
+							},
+							{
+								"name": "AH_SITE_GROUP",
+								"value": "wlgore-app"
+							},
+							{
+								"name": "TEMP",
+								"value": "/shared/tmp"
+							},
+							{
+								"name": "TMPDIR",
+								"value": "/shared/tmp"
+							},
+							{
+								"name": "CUSTOMER_USERNAME",
+								"value": "test"
+							}
+						],
+						"resources": {
+							"limits": {
+								"cpu": "500m",
+								"memory": "600Mi"
+							}
+						},
+						"volumeMounts": [
+							{
+								"name": "shared-files",
+								"mountPath": "/var/www/html/docroot/sites/default/files",
+								"subPath": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-drupal-files"
+							},
+							{
+								"name": "shared-files",
+								"mountPath": "/shared",
+								"subPath": "d6a1c503-c2b0-48d7-8d64-450cdfcb07ee-shared"
+							},
+							{
+								"name": "php-config",
+								"readOnly": true,
+								"mountPath": "/usr/local/php/etc/conf.d/zzz_drupalenvironment.ini",
+								"subPath": "zzz_drupalenvironment.ini"
+							},
+							{
+								"name": "php-config",
+								"readOnly": true,
+								"mountPath": "/usr/local/php/etc/cli/conf.d/zzz_drupalenvironment_cli.ini",
+								"subPath": "zzz_drupalenvironment_cli.ini"
+							},
+							{
+								"name": "php-config",
+								"readOnly": true,
+								"mountPath": "/usr/local/php/etc/conf.d/newrelic.ini",
+								"subPath": "newrelic.ini"
+							},
+							{
+								"name": "env-config",
+								"readOnly": true,
+								"mountPath": "/mnt/env-config/"
+							},
+							{
+								"name": "php-fpm-config",
+								"readOnly": true,
+								"mountPath": "/usr/local/php/etc/php-fpm.d/"
+							},
+							{
+								"name": "drupal-code",
+								"mountPath": "/var/www"
+							}
+						],
+						"terminationMessagePath": "/dev/termination-log",
+						"terminationMessagePolicy": "File",
+						"imagePullPolicy": "Always",
+						"securityContext": {
+							"runAsUser": 0
+						}
+					}
+				],
+				"restartPolicy": "Always",
+				"terminationGracePeriodSeconds": 30,
+				"dnsPolicy": "ClusterFirst",
+				"nodeSelector": {
+					"node-role.kubernetes.io/worker": "true"
+				},
+				"serviceAccountName": "sshd",
+				"serviceAccount": "sshd",
+				"securityContext": {},
+				"schedulerName": "default-scheduler"
+			}
+		},
+		"strategy": {
+			"type": "RollingUpdate",
+			"rollingUpdate": {
+				"maxUnavailable": "25%",
+				"maxSurge": "25%"
+			}
+		},
+		"revisionHistoryLimit": 10,
+		"progressDeadlineSeconds": 600
+	},
+	"status": {}
+}

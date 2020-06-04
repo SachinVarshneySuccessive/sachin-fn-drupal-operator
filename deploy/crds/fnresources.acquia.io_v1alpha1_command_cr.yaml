@@ -1,0 +1,29 @@
+apiVersion: fnresources.acquia.io/v1alpha1
+kind: Command
+metadata:
+  generateName: migrate-sh-
+spec:
+  targetRef:
+    apiVersion: fnresources.acquia.io/v1alpha1
+    kind: Site
+    name: wlgore-site
+  command:
+    - /usr/local/bin/migrate.sh
+  retries: 10
+  runAsRoot: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 128Mi
+  additionalEnvVars:
+    - name: TEST_ENV
+      value: blah
+  additionalVolumes:
+    - name: temporary
+      emptyDir: {}
+  additionalVolumeMounts:
+    - name: temporary
+      mountPath: /temporary

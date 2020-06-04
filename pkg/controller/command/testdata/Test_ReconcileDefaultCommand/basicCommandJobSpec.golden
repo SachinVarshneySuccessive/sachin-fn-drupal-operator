@@ -1,0 +1,60 @@
+{
+	"completions": 1,
+	"activeDeadlineSeconds": 3600,
+	"backoffLimit": 0,
+	"template": {
+		"metadata": {
+			"creationTimestamp": null,
+			"labels": {
+				"app": "drupal",
+				"command": "drush",
+				"fnresources.acquia.io/application-id": "0b48e3fe-09a1-4d96-8447-6198114e5d58",
+				"fnresources.acquia.io/environment-id": "1c1f2619-4ec0-416f-bc32-09f57242082d",
+				"fnresources.acquia.io/site-id": "ae622f34-ac70-44d5-aec4-bb6d5dcd6d41"
+			}
+		},
+		"spec": {
+			"containers": [
+				{
+					"name": "main",
+					"image": "customer/code:latest",
+					"command": [
+						"drush",
+						"st"
+					],
+					"env": [
+						{
+							"name": "AH_SITE_NAME",
+							"value": "wlgore-prod-site"
+						}
+					],
+					"resources": {
+						"limits": {
+							"cpu": "1",
+							"memory": "256Mi"
+						},
+						"requests": {
+							"cpu": "100m",
+							"memory": "128Mi"
+						}
+					},
+					"volumeMounts": [
+						{
+							"name": "shared-files",
+							"mountPath": "/var/www/html/docroot/sites/default/files",
+							"subPath": "31805192-9bce-433b-8c5b-05c34f76e3b6-drupal-files"
+						}
+					]
+				}
+			],
+			"restartPolicy": "Never",
+			"terminationGracePeriodSeconds": 30,
+			"dnsPolicy": "ClusterFirst",
+			"nodeSelector": {
+				"node-role.kubernetes.io/worker": "true"
+			},
+			"securityContext": {},
+			"schedulerName": "default-scheduler"
+		}
+	}
+}

@@ -1,0 +1,27 @@
+{
+	"kind": "ConfigMap",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "apache-conf-enabled",
+		"namespace": "wlgore-app-non-prod",
+		"resourceVersion": "1",
+		"creationTimestamp": null,
+		"labels": {
+			"fnresources.acquia.io/application-id": "c7b96d1a-e50a-47f2-a94b-f1f6aada4704",
+			"fnresources.acquia.io/environment-id": "560fc690-4e5c-41d2-8fee-bef00c5c9693"
+		},
+		"ownerReferences": [
+			{
+				"apiVersion": "fnresources.acquia.io/v1alpha1",
+				"kind": "DrupalEnvironment",
+				"name": "wlgore-app-non-prod",
+				"uid": "",
+				"controller": true,
+				"blockOwnerDeletion": true
+			}
+		]
+	},
+	"data": {
+		"passenv.conf": "PassEnv CUSTOM_ENV1 CUSTOM_ENV2 AH_NON_PRODUCTION AH_APPLICATION_UUID AH_CURRENT_REGION AH_REALM AH_SITE_ENVIRONMENT AH_SITE_GROUP TEMP TMPDIR"
+	}
+}

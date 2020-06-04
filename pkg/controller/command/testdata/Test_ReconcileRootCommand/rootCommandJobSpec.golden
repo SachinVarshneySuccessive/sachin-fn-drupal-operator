@@ -1,0 +1,77 @@
+{
+	"completions": 1,
+	"activeDeadlineSeconds": 123,
+	"backoffLimit": 1,
+	"template": {
+		"metadata": {
+			"creationTimestamp": null,
+			"labels": {
+				"app": "drupal",
+				"command": "drush",
+				"fnresources.acquia.io/application-id": "0b48e3fe-09a1-4d96-8447-6198114e5d58",
+				"fnresources.acquia.io/environment-id": "1c1f2619-4ec0-416f-bc32-09f57242082d",
+				"test-1": "foo",
+				"test-2": "bar"
+			}
+		},
+		"spec": {
+			"volumes": [
+				{
+					"name": "test-vol",
+					"emptyDir": {}
+				}
+			],
+			"containers": [
+				{
+					"name": "main",
+					"image": "test-image:latest",
+					"command": [
+						"mkdir",
+						"/foo"
+					],
+					"env": [
+						{
+							"name": "foo",
+							"value": "bar"
+						},
+						{
+							"name": "bim",
+							"value": "bap"
+						}
+					],
+					"resources": {
+						"limits": {
+							"cpu": "2",
+							"memory": "512Mi"
+						},
+						"requests": {
+							"cpu": "200m",
+							"memory": "333Mi"
+						}
+					},
+					"volumeMounts": [
+						{
+							"name": "shared-files",
+							"mountPath": "/var/www/html/docroot/sites/default/files",
+							"subPath": "31805192-9bce-433b-8c5b-05c34f76e3b6-drupal-files"
+						},
+						{
+							"name": "test-vol",
+							"mountPath": "/test"
+						}
+					]
+				}
+			],
+			"restartPolicy": "Never",
+			"terminationGracePeriodSeconds": 456,
+			"dnsPolicy": "ClusterFirst",
+			"nodeSelector": {
+				"node-role.kubernetes.io/worker": "true"
+			},
+			"securityContext": {
+				"runAsUser": 0
+			},
+			"schedulerName": "default-scheduler"
+		}
+	}
+}

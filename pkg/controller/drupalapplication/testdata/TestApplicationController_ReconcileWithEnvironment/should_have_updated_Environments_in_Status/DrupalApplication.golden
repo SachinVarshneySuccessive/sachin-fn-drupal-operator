@@ -1,0 +1,34 @@
+{
+	"kind": "DrupalApplication",
+	"apiVersion": "fnresources.acquia.io/v1alpha1",
+	"metadata": {
+		"name": "wlgore-app",
+		"resourceVersion": "3",
+		"creationTimestamp": null,
+		"labels": {
+			"fnresources.acquia.io/application-id": "d8de5846-fbec-4a35-b888-aed09bb1733b",
+			"fnresources.acquia.io/git-repo": "4ea0f4f12267befc54ff3eeab2c31b8d99c7b1a9"
+		}
+	},
+	"spec": {
+		"imageRepo": "881217801864.dkr.ecr.us-east-1.amazonaws.com/customer/svn-2.archteam.srvs.ahdev.co/nebula",
+		"gitRepo": "nebula@svn-2.archteam.srvs.ahdev.co:nebula.git"
+	},
+	"status": {
+		"numEnvironments": 2,
+		"environments": [
+			{
+				"name": "wlgore-app-prod",
+				"namespace": "wlgore-app-prod",
+				"environmentID": "e5462ba5-09d0-49fa-a5b3-8c82d85f4c9e",
+				"uid": ""
+			},
+			{
+				"name": "wlgore-app-stg",
+				"namespace": "wlgore-app-stg",
+				"environmentID": "a9ccc445-8e8f-4885-b39e-9e16edd34da6",
+				"uid": ""
+			}
+		]
+	}
+}

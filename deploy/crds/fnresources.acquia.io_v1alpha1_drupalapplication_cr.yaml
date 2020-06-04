@@ -1,0 +1,7 @@
+apiVersion: fnresources.acquia.io/v1alpha1
+kind: DrupalApplication
+metadata:
+  name: wlgore-app
+spec:
+  gitRepo: git@github.com:acquia/fn-example-repos.git
+  imageRepo: 881217801864.dkr.ecr.us-east-1.amazonaws.com/customer/github.com/acquia/fn-example-repos

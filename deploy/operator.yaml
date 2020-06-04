@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fn-drupal-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fn-drupal-operator
+  template:
+    metadata:
+      labels:
+        name: fn-drupal-operator
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8383"
+    spec:
+      serviceAccountName: fn-drupal-operator
+      nodeSelector:
+        node-role.kubernetes.io/management: "true"
+      volumes:
+      - name: webhook-certs
+        secret:
+          secretName: fn-drupal-operator-webhook-cert
+      containers:
+        - name: fn-drupal-operator
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+          - fn-drupal-operator
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 200m
+              memory: 700Mi
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs/
+              name: webhook-certs
+          env:
+            - name: WATCH_NAMESPACE
+              value: "{{ .Values.watchNamespace }}"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "fn-drupal-operator"
+            - name: USE_DYNAMIC_PROVISIONING
+              value: "{{ .Values.useDynamicProvisioning }}"
+            - name: AH_REALM
+              value: "{{ .Values.realm }}"
+            - name: DEFAULT_STORAGE_CLASS
+              value: "{{ .Values.defaultStorageClass }}"
+            - name: NEWRELIC_DAEMON_ADDR
+              value: "{{ .Values.newrelicDaemonAddr }}"
+            - name: CUSTOMER_ECR
+              value: "{{ .Values.customerECR }}"
+            - name: CUSTOMER_ECR_REPO_NAME_PREFIX
+              value: "{{ .Values.customerECRRepoNamePrefix }}"
+{{- if .Values.istio.enabled }}
+            - name: ISTIO_ENABLED
+              value: "true"
+{{- end }}

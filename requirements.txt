@@ -1,0 +1,6 @@
+asserts==0.10.0
+behave==1.2.6
+Click==7.0
+sh==1.12.14
+termcolor==1.1.0
+DateTime==4.3

@@ -1,0 +1,11 @@
+apiVersion: fnresources.acquia.io/v1alpha1
+kind: Database
+metadata:
+  name: wlgoredatabase
+spec:
+  schemaName: wlgoredatabase
+  host: mysql.default.svc.cluster.local
+  port: 3306
+  user: wlgore
+  adminSecret: wlgore-admin-secret
+  userSecret: wlgore-user-secret
