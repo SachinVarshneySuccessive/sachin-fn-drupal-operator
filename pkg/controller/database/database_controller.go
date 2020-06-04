@@ -202,11 +202,11 @@ func (rh *requestHandler) reconcileDatabase() (requeue bool, err error) {
 			return false, goErr.New("User secret is not provided")
 		}
 
-		pwd, err := rh.database.GetPassword(r.client)
-		if pwd == "" {
-			rh.logger.Error(err, "secret password is not provided")
-			return false, err
-		}
+		// pwd, err := rh.database.GetPassword(r.client)
+		// if pwd == "" {
+		// 	rh.logger.Error(err, "secret password is not provided")
+		// 	return false, err
+		// }
 
 		return true, nil
 	}
