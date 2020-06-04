@@ -153,7 +153,7 @@ func TestDatabaseController_KnownName(t *testing.T) {
 		require.False(t, res.Requeue)
 	})
 
-	t.Run("should throw error if not able to close sql connect", func(t *testing.T) {
+	t.Run("should throw error if not able to close sql connection", func(t *testing.T) {
 		// Mocking of SQL queries
 		setAdminConnectionFunc(mockCreateDatabaseAndUserWithoutClose)
 		defer restoreAdminConnectionFunc()
