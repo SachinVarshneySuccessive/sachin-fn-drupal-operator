@@ -174,91 +174,91 @@ func TestDatabaseController_KnownName(t *testing.T) {
 	})
 }
 
-func TestDatabaseController_KnownNameWithoutAdminSecret(t *testing.T) {
-	// Set the logger to development mode for verbose logs.
-	logf.SetLogger(logf.ZapLogger(true))
+// func TestDatabaseController_KnownNameWithoutAdminSecret(t *testing.T) {
+// 	// Set the logger to development mode for verbose logs.
+// 	logf.SetLogger(logf.ZapLogger(true))
 
-	// objects to track in the fake client
-	fakeObjects := []runtime.Object{testDatabaseWithoutAdminSecret}
+// 	// objects to track in the fake client
+// 	fakeObjects := []runtime.Object{testDatabaseWithoutAdminSecret}
 
-	r := buildFakeReconcile(fakeObjects)
+// 	r := buildFakeReconcile(fakeObjects)
 
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      testName,
-			Namespace: testNameSpace,
-		},
-	}
+// 	req := reconcile.Request{
+// 		NamespacedName: types.NamespacedName{
+// 			Name:      testName,
+// 			Namespace: testNameSpace,
+// 		},
+// 	}
 
-	t.Run("should perform migration", testMigration(r, req))
+// 	t.Run("should perform migration", testMigration(r, req))
 
-	t.Run("should add a label to the database object", testDatabaseLabel(r, req))
+// 	t.Run("should add a label to the database object", testDatabaseLabel(r, req))
 
-	t.Run("should add the finalizers to database object", func(t *testing.T) {
-		res, err := r.Reconcile(req)
-		require.NoError(t, err)
-		require.True(t, res.Requeue)
+// 	t.Run("should add the finalizers to database object", func(t *testing.T) {
+// 		res, err := r.Reconcile(req)
+// 		require.NoError(t, err)
+// 		require.True(t, res.Requeue)
 
-		// Verify the finalizers
-		database := &fnv1alpha1.Database{}
-		err = r.client.Get(context.TODO(), types.NamespacedName{Name: req.Name, Namespace: req.Namespace}, database)
-		require.NoError(t, err)
-		require.True(t, common.HasFinalizer(database, dbPwdSecretFinalizer))
-	})
+// 		// Verify the finalizers
+// 		database := &fnv1alpha1.Database{}
+// 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: req.Name, Namespace: req.Namespace}, database)
+// 		require.NoError(t, err)
+// 		require.True(t, common.HasFinalizer(database, dbPwdSecretFinalizer))
+// 	})
 
-	t.Run("should create the user secret", func(t *testing.T) {
-		res, err := r.Reconcile(req)
-		require.NoError(t, err)
-		require.True(t, res.Requeue)
+// 	t.Run("should create the user secret", func(t *testing.T) {
+// 		res, err := r.Reconcile(req)
+// 		require.NoError(t, err)
+// 		require.True(t, res.Requeue)
 
-		secret := &corev1.Secret{}
-		err = r.client.Get(context.TODO(), types.NamespacedName{Name: testDatabaseWithoutAdminSecret.Spec.UserSecret, Namespace: req.Namespace}, secret)
-		require.NoError(t, err)
+// 		secret := &corev1.Secret{}
+// 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: testDatabaseWithoutAdminSecret.Spec.UserSecret, Namespace: req.Namespace}, secret)
+// 		require.NoError(t, err)
 
-		// Verify that password has been properly set
-		require.NotEmpty(t, secret.Data["password"])
-		// Verify that Owner References have been applied
-		require.Equal(t, secret.OwnerReferences[0].Kind, "Database")
-		require.Equal(t, secret.OwnerReferences[0].Name, testName)
-	})
+// 		// Verify that password has been properly set
+// 		require.NotEmpty(t, secret.Data["password"])
+// 		// Verify that Owner References have been applied
+// 		require.Equal(t, secret.OwnerReferences[0].Kind, "Database")
+// 		require.Equal(t, secret.OwnerReferences[0].Name, testName)
+// 	})
 
-	t.Run("should not reconcile database and throw error", func(t *testing.T) {
-		_, err := r.Reconcile(req)
-		require.NoError(t, err)
-	})
+// 	t.Run("should not reconcile database and throw error", func(t *testing.T) {
+// 		_, err := r.Reconcile(req)
+// 		require.NoError(t, err)
+// 	})
 
-	t.Run("should throw error while creating database", func(t *testing.T) {
-		// Mocking of SQL queries
-		setAdminConnectionFunc(mockCreateDatabseSQLError)
-		defer restoreAdminConnectionFunc()
+// 	t.Run("should throw error while creating database", func(t *testing.T) {
+// 		// Mocking of SQL queries
+// 		setAdminConnectionFunc(mockCreateDatabseSQLError)
+// 		defer restoreAdminConnectionFunc()
 
-		res, err := r.Reconcile(req)
-		require.NoError(t, err)
-		// require.EqualError(t, err, "all expectations were already fulfilled, call to database Close was not expected")
-		require.False(t, res.Requeue)
-	})
+// 		res, err := r.Reconcile(req)
+// 		require.NoError(t, err)
+// 		// require.EqualError(t, err, "all expectations were already fulfilled, call to database Close was not expected")
+// 		require.False(t, res.Requeue)
+// 	})
 
-	t.Run("should throw error if not able to close sql connect", func(t *testing.T) {
-		// Mocking of SQL queries
-		setAdminConnectionFunc(mockCreateDatabaseAndUserWithoutClose)
-		defer restoreAdminConnectionFunc()
+// 	t.Run("should throw error if not able to close sql connect", func(t *testing.T) {
+// 		// Mocking of SQL queries
+// 		setAdminConnectionFunc(mockCreateDatabaseAndUserWithoutClose)
+// 		defer restoreAdminConnectionFunc()
 
-		res, err := r.Reconcile(req)
-		require.NoError(t, err)
-		// require.EqualError(t, err, "all expectations were already fulfilled, call to database Close was not expected")
-		require.False(t, res.Requeue)
-	})
+// 		res, err := r.Reconcile(req)
+// 		require.NoError(t, err)
+// 		// require.EqualError(t, err, "all expectations were already fulfilled, call to database Close was not expected")
+// 		require.False(t, res.Requeue)
+// 	})
 
-	t.Run("should create the database", func(t *testing.T) {
-		// Mocking of SQL queries
-		setAdminConnectionFunc(mockCreateDatabaseAndUser)
-		defer restoreAdminConnectionFunc()
+// 	t.Run("should create the database", func(t *testing.T) {
+// 		// Mocking of SQL queries
+// 		setAdminConnectionFunc(mockCreateDatabaseAndUser)
+// 		defer restoreAdminConnectionFunc()
 
-		res, err := r.Reconcile(req)
-		require.NoError(t, err)
-		require.False(t, res.Requeue)
-	})
-}
+// 		res, err := r.Reconcile(req)
+// 		require.NoError(t, err)
+// 		require.False(t, res.Requeue)
+// 	})
+// }
 func TestDatabaseController_Deletion(t *testing.T) {
 	// Set the logger to development mode for verbose logs.
 	logf.SetLogger(logf.ZapLogger(true))
