@@ -113,7 +113,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Info("Registering Component.")
+	log.Info("Registering Components.")
 
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
